@@ -179,7 +179,7 @@ class MultiFrameThread(GatherThread):
 
 
     def set_path(self):
-        self.path = self.folder + self.base_name + self.time_str() + '.' + self.file_type
+        self.path = self.folder + self.base_name + self.time_str() + self.file_type
         return self.path
 
 
@@ -234,7 +234,7 @@ class MultiFrameThread(GatherThread):
                 self.stop_check()
         else:
             def process(self, image_data):
-                print(self.parse_data(image_data).shape)
+                #print(self.parse_data(image_data).shape)
                 iio.imwrite(self.path(), self.parse_data(image_data))
                 self.stop_check()
 
@@ -284,6 +284,13 @@ class MultiFrameThread(GatherThread):
         self.map = self.envi.open_memmap(writable=True)
 
         return self.map, self.timings
+
+class FramewiseThread(MultiFrameThread):
+    def __init__(self, cam, eval_script, folder, base_name, max_frames=-1, file_type='.png', copy=True,
+                 aoi=(), binning=(), do_print=False):
+        super().__init__(cam=cam, folder=folder, base_name=base_name, max_frames=max_frames,
+                         file_type='.png', copy=copy, aoi=aoi, binning=binning, do_print=do_print)
+
 
 class old_MultiFrameThread(GatherThread):
     def __init__(self, cam, folder, base_name, max_frames=-1, file_type='.png', copy=True):
