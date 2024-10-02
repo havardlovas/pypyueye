@@ -3,21 +3,21 @@ import argparse
 import signal, os
 
 from pyueye import ueye
-from pypyueye import Camera as Cam
+from pypyueye.camera import Camera as Cam
 from pypyueye.threads import MultiFrameThread
 
 # Setting up argparse
 parser = argparse.ArgumentParser('capture images')
-parser.add_argument('captured_images_path', metavar='path',
+parser.add_argument('--captured_images_path', 
                     type=str, help='folder where data will be stored',
-                    default='~/tmp')
-parser.add_argument('base_name', metavar='base', default='TEST', type=str,
+                    default='capture/')
+parser.add_argument('--base_name', default='TEST', type=str,
                     help='base name for the saved files')
 parser.add_argument('-f', '--fps', type=int,
-                    default=20, help='frames per second to be captured' )
+                    default=80, help='frames per second to be captured' )
 parser.add_argument('-n', '--number_of_frames', type=int,
-                    default=100, help='total number of frames to capture' )
-parser.add_argument('-t', '--file_type', default=".jpg",
+                    default=644, help='total number of frames to capture' )
+parser.add_argument('-t', '--file_type', default="envi",
                     help='frames or images will be stored as this filetype')
 parser.add_argument('-b', '--binning', default=[1,1], nargs=2, type=int,
                     help='number of raw pixels per saved pixel: spatial, spectral')
@@ -25,7 +25,7 @@ parser.add_argument('-p', '--do_print', action="store_true",
                     help='print info about captured frames')
 parser.add_argument('-g', '--gain', type=int, default=1,
                     help='set the (master) gain')
-parser.add_argument('-a', '--aoi', default=[0, 0, 1088, 2048],
+parser.add_argument('-a', '--aoi', default=[0, 0, 1216, 1936],
                     type=int, nargs=4,
                     help='area of interest xmin, lmin, xwidth, lwidth')
 
@@ -38,7 +38,7 @@ BASE_NAME = args.base_name
 MAX_FRAMES = args.number_of_frames
 FILE_TYPE = args.file_type
 BINNING = tuple(args.binning)
-DO_PRINT = args.do_print
+DO_PRINT = False
 MASTER_GAIN = args.gain
 #the set_aoi function takes them in an odd order
 AOI = tuple([args.aoi[1], args.aoi[0], args.aoi[3], args.aoi[2]])
@@ -47,7 +47,7 @@ AOI = tuple([args.aoi[1], args.aoi[0], args.aoi[3], args.aoi[2]])
 print("saving as {}".format(FILE_TYPE))
 
 # DEFAULTS
-PIXEL_CLOCK = 160
+PIXEL_CLOCK = 237 # one of these: 30, 59, 118, 237, 474
 
 with Cam() as c:
     c.set_colormode(ueye.IS_CM_MONO8)

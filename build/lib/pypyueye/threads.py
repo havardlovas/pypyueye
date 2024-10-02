@@ -51,7 +51,7 @@ class GatherThread(Thread):
         self.cam.capture_video()
         self.running = True
         self.copy = copy
-        self.d = 0 # The frame count
+        self.d = 0
         self.capt_time = -1
 
     def run(self):
@@ -215,8 +215,7 @@ class MultiFrameThread(GatherThread):
 
             def process(self, image_data):
                 #save data
-                self.map[self.d, :, :] = np.transpose(self.parse_data(image_data)[:, :])
-                
+                self.map[:, self.d, :] = self.parse_data(image_data)[:, :]
                 if self.d % ENVI_FLUSHING_N == 0:
                     self.map.flush()
                 #save timing
@@ -252,8 +251,8 @@ class MultiFrameThread(GatherThread):
     def envi_metadata(self):
         md = {
                  "bands": self.aoi[3],
-                 "lines": self.max_frames,
-                 "samples": self.aoi[2],
+                 "lines": self.aoi[2],
+                 "samples": self.max_frames,
                  "data type": 12,
                  "interleave": 'bip',
                  "byte order": 0,
@@ -269,12 +268,11 @@ class MultiFrameThread(GatherThread):
         # define the metadata
         md = {
                  "bands": self.aoi[3],
-                 "lines": self.max_frames,
-                 "samples": self.aoi[2],
-                 "data type": 1,
+                 "lines": self.aoi[2],
+                 "samples": self.max_frames,
+                 "data type": 12,
                  "interleave": 'bip'
              }
-        print(self.aoi[2])
         # determine saving location
         self.loc = self.folder + self.base_name + ".hdr"
         print(self.loc)
@@ -318,3 +316,4 @@ class old_MultiFrameThread(GatherThread):
         if self.max_frames > 0:
             if self.d + 2 > self.max_frames:
                 self.stop()
+
